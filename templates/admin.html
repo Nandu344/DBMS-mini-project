@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Admin Panel</h2>
+    
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Device</th>
+            <th>Issue</th>
+            <th>Status</th>
+            <th>Assign Technician</th>
+            <th>Action</th>
+        </tr>
+        {% for req in requests %}
+        <tr>
+            <td>{{ req.id }}</td>
+            <td>{{ req.name if req.user_id else 'N/A' }}</td> <!-- Ensuring name exists -->
+            <td>{{ req.device }}</td>
+            <td>{{ req.issue }}</td>
+            <td>{{ req.status }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('assign_technician', request_id=req.id) }}">
+                    <select name="technician_id" required>
+                        <option value="">Select Technician</option>
+                        {% for technician in technicians %}
+                            <option value="{{ technician.id }}">{{ technician.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Assign</button>
+                </form>
+                <form method="POST" action="{{ url_for('update_status', request_id=req.id) }}">
+                    <select name="status" class="form-control">
+                        <option value="Pending" {% if request.status == "Pending" %}selected{% endif %}>Pending</option>
+                        <option value="In Progress" {% if request.status == "In Progress" %}selected{% endif %}>In Progress</option>
+                        <option value="Completed" {% if request.status == "Completed" %}selected{% endif %}>Completed</option>
+                        <option value="Cancelled" {% if request.status == "Cancelled" %}selected{% endif %}>Cancelled</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary mt-1">Update</button>
+                </form>
+
+            </td>
+            <td>
+                <a href="{{ url_for('track_status', request_id=req.id) }}" class="btn btn-info">Track Status</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
